@@ -37,19 +37,20 @@ public class BloomFilter<K> implements Set<K> {
 
     private int hash1(CharSequence d){
 
-        return MurmurHash3.murmurhash3_x86_32(d, 0, m, hash1seed);
+        return MurmurHash3.murmurhash3_x86_32(d, 0, d.length(), hash1seed);
+
     }
 
     private int hash2(CharSequence d){
 
-        return MurmurHash3.murmurhash3_x86_32(d, 0, m, hash2seed);
+        return MurmurHash3.murmurhash3_x86_32(d, 0, d.length(), hash2seed);
     }
 
     private int hashI(int i, K data) {
 
         CharSequence d = (CharSequence) data;
 
-        return hash1(d) + (i * hash2(d)) % m;
+        return hash1(d) + (i * hash2(d));
 
     }
 
@@ -101,7 +102,7 @@ public class BloomFilter<K> implements Set<K> {
     public boolean add(K inputData) {
         K data = inputData;
         for(int i = 0; i < k; k++) {
-            int index = hashI(i, data);
+            int index = Math.abs(hashI(i, data)) % m;
             filter.set(index, true);
         }
         count++;
